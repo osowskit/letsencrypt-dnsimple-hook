@@ -50,7 +50,7 @@ def setup_dns(account_id, domain, subdomain_name, txt_challenge)
      print "."
      sleep 10;
     end
-    rescue Dnsimple::RequestError => text
+  rescue Dnsimple::RequestError => text
     # Catch Error 'Zone record already exists'
     puts text
   end
