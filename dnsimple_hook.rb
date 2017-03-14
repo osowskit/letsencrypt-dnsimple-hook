@@ -1,8 +1,11 @@
 #!/usr/bin/env ruby
 require 'dnsimple'
+require 'resolv'
+$stdout.sync = true
 
 debug = true
 DNSIMPLE_API_TOKEN = ENV["DNSIMPLE_API_TOKEN"]
+@dns = Resolv::DNS.new
 
 if debug
   @client = Dnsimple::Client.new(base_url: "https://api.sandbox.dnsimple.com", access_token: DNSIMPLE_API_TOKEN)
@@ -30,16 +33,28 @@ def find_domain(account_id, full_domain_name)
   return_val
 end
 
+def verify_record(full_challenge_domain, challenge)
+   @dns.each_resource(full_challenge_domain, Resolv::DNS::Resource::IN::TXT) { |resp|
+     return resp.strings[0] == txt_challenge      
+    }
+end
+  
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
   acme_domain = "_acme-challenge."+subdomain_name
 
   begin
     @client.zones.create_record(account_id, domain, name: acme_domain, type: "TXT", ttl: 60, content: txt_challenge)
-    sleep(5)
-  rescue Dnsimple::RequestError => text
+    puts "waiting for domain propogation"
+
+    until verify_record(acme_domain +"."+ domain, txt_challenge)
+     print "."
+     sleep 10;
+    end
+    rescue Dnsimple::RequestError => text
     # Catch Error 'Zone record already exists'
     puts text
   end
+  puts
 end
 
 def delete_dns(domain, txt_challenge)
