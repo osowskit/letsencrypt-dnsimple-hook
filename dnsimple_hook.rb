@@ -34,7 +34,8 @@ def setup_dns(account_id, domain, subdomain_name, txt_challenge)
   acme_domain = "_acme-challenge."+subdomain_name
 
   begin
-    @client.zones.create_record(account_id, domain, name: acme_domain, type: "TXT", content: txt_challenge)
+    @client.zones.create_record(account_id, domain, name: acme_domain, type: "TXT", ttl: 60, content: txt_challenge)
+    sleep(5)
   rescue Dnsimple::RequestError => text
     # Catch Error 'Zone record already exists'
     puts text
