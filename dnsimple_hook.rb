@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'dnsimple'
 require 'resolv'
+require 'public_suffix'
 $stdout.sync = true
 
 debug = true
@@ -13,25 +14,20 @@ else
   @client = Dnsimple::Client.new(access_token: DNSIMPLE_API_TOKEN)
 end
 
-# This function has two purposes
-# * Divide your FQDN into first level domain and subdomain
-# * Ensure that you are able to control that first level domain via your DNSimple account
-#
-# It iterates over DNSimple domains looking for a domain match
-#
-# Note: This verification fails if you own the domain `foo.com` and you attempt to verify `e-foo.com`
-def find_domain(account_id, full_domain_name)
-  
+# This function ensures that you are able to control that first level
+# domain via your DNSimple account
+def verify_domain_control(account_id, domain_name)
   domains = @client.domains.list_domains(account_id).data
-
   domains.each do |domain|
-    domain_name = domain.name
-    if full_domain_name.include? domain_name
-      return {"domain_name" => domain_name, "subdomain_name" => full_domain_name.chomp(".#{domain_name}"};
+    dns_simple_domain_name = domain.name
+    if dns_simple_domain_name.eql? domain_name
+      puts 'verified domain control'
+      return
     end
   end
   
-  # if you don't can't control the domain, then no need to go on further
+  # Stop execution of this script if the API key can't control
+  # this domain
   exit
 end
 
@@ -75,11 +71,18 @@ if __FILE__ == $0
        if hook_stage == "deploy_challenge"
         full_domain_name = ARGV[1]
         txt_challenge = ARGV[3]
-        
-        // part of me wants to replace this with a much simpler method
-        domain_hash = find_domain(account_id, full_domain_name)
 
-        setup_dns(account_id, domain_hash["domain_name"], domain_hash["subdomain_name"] , txt_challenge)
+        # Split domain for DNSimple API
+        ps_domain = PublicSuffix.domain(full_domain_name)
+        domain_name = ps_domain.domain
+        subdomain_name = ps_domain.trd
+
+        # Search for domain in DNSimple or stop script
+        verify_domain_control(account_id, domain_name)
+
+        # Add TXT record and verify the record exists via API
+        # before continuing
+        setup_dns(account_id, domain_name, subdomain_name, txt_challenge)
       elsif hook_stage == "clean_challenge"
         full_domain_name = ARGV[1]
         txt_challenge = ARGV[3]
