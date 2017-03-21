@@ -25,21 +25,21 @@ def verify_domain_control(account_id, domain_name)
       return
     end
   end
-  
+
   # Stop execution of this script if the API key can't control
   # this domain
   exit
 end
 
-# This function returns the result of a specific text string(the challenge) 
+# This function returns the result of a specific text string(the challenge)
 # being stored in a DNS TXT record for a domain(challenge_fqdn)
 def verify_record(challenge_fqdn, challenge)
    @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
-     return resp.strings[0] == txt_challenge      
+     return resp.strings[0] == txt_challenge
     }
   false
 end
-  
+
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
   acme_domain = "_acme-challenge."+subdomain_name
 
@@ -77,7 +77,7 @@ if __FILE__ == $0
         domain_name = ps_domain.domain
         subdomain_name = ps_domain.trd
 
-        # Search for domain in DNSimple or stop script
+        # Confirm control of domain in DNSimple or stop script
         verify_domain_control(account_id, domain_name)
 
         # Add TXT record and verify the record exists via API
