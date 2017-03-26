@@ -34,9 +34,9 @@ end
 # This function returns the result of a specific text string(the challenge) 
 # being stored in a DNS TXT record for a domain(challenge_fqdn)
 def verify_record(challenge_fqdn, challenge)
-   @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
-     return resp.strings[0] == txt_challenge      
-    }
+  @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
+    return resp.strings[0] == challenge
+  }
   false
 end
   
@@ -68,24 +68,26 @@ if __FILE__ == $0
   account = @client.accounts.list
   account_id = account.data[0].id
 
-       if hook_stage == "deploy_challenge"
-        full_domain_name = ARGV[1]
-        txt_challenge = ARGV[3]
+  if hook_stage == "deploy_challenge"
+    full_domain_name = ARGV[1]
+    txt_challenge = ARGV[3]
 
-        # Split domain for DNSimple API
-        ps_domain = PublicSuffix.domain(full_domain_name)
-        domain_name = ps_domain.domain
-        subdomain_name = ps_domain.trd
+    puts ARGV
+    # Split domain for DNSimple API
+    ps_domain = PublicSuffix.parse(full_domain_name)
+    puts ps_domain
+    domain_name = ps_domain.domain
+    subdomain_name = ps_domain.trd
 
-        # Search for domain in DNSimple or stop script
-        verify_domain_control(account_id, domain_name)
+    # Search for domain in DNSimple or stop script
+    verify_domain_control(account_id, domain_name)
 
-        # Add TXT record and verify the record exists via API
-        # before continuing
-        setup_dns(account_id, domain_name, subdomain_name, txt_challenge)
-      elsif hook_stage == "clean_challenge"
-        full_domain_name = ARGV[1]
-        txt_challenge = ARGV[3]
-        delete_dns(full_domain_name, txt_challenge)
-      end
+    # Add TXT record and verify the record exists via API
+    # before continuing
+    setup_dns(account_id, domain_name, subdomain_name, txt_challenge)
+  elsif hook_stage == "clean_challenge"
+    full_domain_name = ARGV[1]
+    txt_challenge = ARGV[3]
+    delete_dns(full_domain_name, txt_challenge)
+  end
 end
