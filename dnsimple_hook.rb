@@ -34,10 +34,14 @@ end
 # This function returns the result of a specific text string(the challenge) 
 # being stored in a DNS TXT record for a domain(challenge_fqdn)
 def verify_record(challenge_fqdn, challenge)
+  found_record = false
+
   @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
-    return resp.strings[0] == challenge
+    if resp.strings[0] == challenge
+      found_record = true
+    end
   }
-  false
+  return found_record
 end
   
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
@@ -49,7 +53,7 @@ def setup_dns(account_id, domain, subdomain_name, txt_challenge)
 
     until verify_record(acme_domain +"."+ domain, txt_challenge)
      print "."
-     sleep 10;
+     sleep 10
     end
   rescue Dnsimple::RequestError => text
     # Catch Error 'Zone record already exists'
@@ -72,10 +76,8 @@ if __FILE__ == $0
     full_domain_name = ARGV[1]
     txt_challenge = ARGV[3]
 
-    puts ARGV
     # Split domain for DNSimple API
     ps_domain = PublicSuffix.parse(full_domain_name)
-    puts ps_domain
     domain_name = ps_domain.domain
     subdomain_name = ps_domain.trd
 
