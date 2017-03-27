@@ -34,14 +34,13 @@ end
 # This function returns the result of a specific text string(the challenge) 
 # being stored in a DNS TXT record for a domain(challenge_fqdn)
 def verify_record(challenge_fqdn, challenge)
-  found_record = false
 
   @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
     if resp.strings[0] == challenge
-      found_record = true
+      return true
     end
   }
-  return found_record
+  return false
 end
   
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
