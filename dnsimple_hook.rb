@@ -35,7 +35,7 @@ end
 # being stored in a DNS TXT record for a domain(challenge_fqdn)
 def verify_record(challenge_fqdn, challenge)
    @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
-     return resp.strings[0] == txt_challenge
+     return resp.strings[0] == challenge
     }
   false
 end
@@ -73,7 +73,7 @@ if __FILE__ == $0
         txt_challenge = ARGV[3]
 
         # Split domain for DNSimple API
-        ps_domain = PublicSuffix.domain(full_domain_name)
+        ps_domain = PublicSuffix.parse(full_domain_name)
         domain_name = ps_domain.domain
         subdomain_name = ps_domain.trd
 
