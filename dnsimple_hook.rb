@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'dnsimple'
 require 'resolv'
+require 'public_suffix'
 $stdout.sync = true
 
 debug = true
@@ -13,30 +14,33 @@ else
   @client = Dnsimple::Client.new(access_token: DNSIMPLE_API_TOKEN)
 end
 
-# Iterate domain list to return Subdomain and Top-level domains
-def find_domain(account_id, full_domain_name)
-
-  return_val = {
-    "domain_name" => "",
-    "subdomain_name" => ""
-   }
-
+# This function ensures that you are able to control that first level
+# domain via your DNSimple account
+def verify_domain_control(account_id, domain_name)
   domains = @client.domains.list_domains(account_id).data
-
   domains.each do |domain|
-    domain_name = domain.name
-    if full_domain_name.include? domain_name
-      return_val["domain_name"] = domain_name
-      return_val["subdomain_name"] = full_domain_name.chomp(".#{domain_name}")
+    dns_simple_domain_name = domain.name
+    if dns_simple_domain_name.eql? domain_name
+      puts 'verified domain control'
+      return
     end
   end
-  return_val
+  
+  # Stop execution of this script if the API key can't control
+  # this domain
+  exit
 end
 
-def verify_record(full_challenge_domain, challenge)
-   @dns.each_resource(full_challenge_domain, Resolv::DNS::Resource::IN::TXT) { |resp|
-     return resp.strings[0] == txt_challenge      
-    }
+# This function returns the result of a specific text string(the challenge) 
+# being stored in a DNS TXT record for a domain(challenge_fqdn)
+def verify_record(challenge_fqdn, challenge)
+
+  @dns.each_resource(challenge_fqdn, Resolv::DNS::Resource::IN::TXT) { |resp|
+    if resp.strings[0] == challenge
+      return true
+    end
+  }
+  return false
 end
   
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
@@ -48,7 +52,7 @@ def setup_dns(account_id, domain, subdomain_name, txt_challenge)
 
     until verify_record(acme_domain +"."+ domain, txt_challenge)
      print "."
-     sleep 10;
+     sleep 10
     end
   rescue Dnsimple::RequestError => text
     # Catch Error 'Zone record already exists'
@@ -63,22 +67,28 @@ end
 
 if __FILE__ == $0
   hook_stage = ARGV[0]
-  full_domain_name = ARGV[1]
-  txt_challenge = ARGV[3]
 
   account = @client.accounts.list
   account_id = account.data[0].id
 
-  domain_hash = find_domain(account_id, full_domain_name)
-  if domain_hash["domain_name"] != ""
-    response = @client.domains.domain(account_id, domain_hash["domain_name"])
+  if hook_stage == "deploy_challenge"
+    full_domain_name = ARGV[1]
+    txt_challenge = ARGV[3]
 
-    if hook_stage == "deploy_challenge"
-      puts "deploy"
-      setup_dns(account_id, domain_hash["domain_name"], domain_hash["subdomain_name"] , txt_challenge)
-    elsif hook_stage == "clean_challenge"
-      puts "clean"
-      delete_dns(full_domain_name, txt_challenge)
-    end
+    # Split domain for DNSimple API
+    ps_domain = PublicSuffix.parse(full_domain_name)
+    domain_name = ps_domain.domain
+    subdomain_name = ps_domain.trd
+
+    # Search for domain in DNSimple or stop script
+    verify_domain_control(account_id, domain_name)
+
+    # Add TXT record and verify the record exists via API
+    # before continuing
+    setup_dns(account_id, domain_name, subdomain_name, txt_challenge)
+  elsif hook_stage == "clean_challenge"
+    full_domain_name = ARGV[1]
+    txt_challenge = ARGV[3]
+    delete_dns(full_domain_name, txt_challenge)
   end
 end
