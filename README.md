@@ -1,18 +1,19 @@
 # Automated DNS Challenge hook for dehydrated
 
-This repository contains a ruby-based hook for the [`dehyrdated`](https://github.com/lukas2511/dehydrated) project (a [Let's Encrypt](https://letsencrypt.org/), shell script ACME client) that allows a user to generate a new SSL certificate from the _Let's Encrypt_ API and a [dnsimple](dnsimple.com) account via a [DNS challenge](https://letsencrypt.org/how-it-works/#domain-validation).
+This repository contains a ruby-based hook for the [`dehyrdated`](https://github.com/lukas2511/dehydrated) project (a [Let's Encrypt](https://letsencrypt.org/), shell script ACME client) that allows a user to generate a new SSL certificate from the _Let's Encrypt_ API and a [DNSimple](dnsimple.com) account via a [DNS challenge](https://letsencrypt.org/how-it-works/#domain-validation).
 
-This script is called by Let's Encrypt and will verify you have control over a domain and add a DNS TXT record in [dnsimple](dnsimple.com). The script will wait until the DNS entry has propogated.
+This script is called by Let's Encrypt and will verify you have control over a domain and add a DNS TXT record in [DNSimple](dnsimple.com). The script will wait until the DNS entry has propogated.
 
 
 Relevant Links:
 * dehydrated: https://github.com/lukas2511/dehydrated
 * Let's Encrypt: https://letsencrypt.org/
-* dnsimple: https://dnsimple.com
+* DNSimple: https://dnsimple.com
 
 ## Required
 * git client for tool download
 * ruby installed and available on the PATH
+* DNSimple Admin's [User Token](https://support.dnsimple.com/articles/api-access-token/#account-tokens-vs-user-tokens)  
 
 ## Installation
 Download the files for installation
