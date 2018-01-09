@@ -19,7 +19,9 @@ Download the files for installation
 
 ``` bash
   $ git clone https://github.com/lukas2511/dehydrated.git
-  $ git clone https://github.com/jbjonesjr/letsencrypt-manual-hook.git dehydrated/hooks/manual
+  $ git clone https://github.com/osowskit/letsencrypt-dnsimple-hook.git dehydrated/hooks/manual
+  $ cd dehydrated/hooks/manual/ && bundle install && cd ../../..
+  $ export DNSIMPLE_API_TOKEN=[API-TOKEN]
 ```
 
 ## Usage
@@ -31,74 +33,7 @@ Download the files for installation
 # --domain (-d) [domain.tld]: Use specified domain name(s) instead of domains.txt entry (one certificate!) 
 # --hook (-k) [path/to/hook.sh]: Use specified script for hooks
 
-git-projects$ ./dehydrated/dehydrated -c -t dns-01 -d jbjonesjr.com -k ./dehydrated/hooks/manual/manual_hook.rb
-# INFO: Using main config file /Users/jbjonesjr/lets-encrypt/letsencrypt-jbjonesjr.sh/config.sh
-Processing jbjonesjr.com with alternative names: blog.jbjonesjr.com
- + Signing domains...
- + Generating private key...
- + Generating signing request...
- + Requesting challenge for jbjonesjr.com...
-Create TXT record for the domain: _acme-challenge.jbjonesjr.com. TXT record:
-NT5EcszzzD2imO2IAWh81KqPHcx7nCSR8jHOEwKDjHQ
-Press any key when DNS has been updated...
-
-Found NT5EcszzzD2imO2IAWh81KqPHcx7nCSR8jHOEwKDjHQ. match.
- + Responding to challenge for jbjonesjr.com...
-Challenge complete. Please delete this TXT record(or in bulk later). Press any key when DNS has been updated...
-
- + Challenge is valid!
- + Requesting certificate...
- + Checking certificate...
- + Done!
- + Creating fullchain.pem...
-deploy_cert
-jbjonesjr.com
-/Users/jbjonesjr/lets-encrypt/letsencrypt-jbjonesjr.sh/certs/jbjonesjr.com/cert.pem
- + Done!
-```
-
-### Certificate with additional alias(es)
-``` bash
-# **Note:** The `dehyrdrated` client uses the following flags in this example
-# --cron (-c): Sign/renew non-existant/changed/expiring certificates. 
-# --challenge (-t) [http-01|dns-01]: Which challenge should be used? Currently http-01 and dns-01 are supported 
-# --domain (-d) [domain.tld]: Use specified domain name(s) instead of domains.txt entry (one certificate!) 
-# --hook (-k) [path/to/hook.sh]: Use specified script for hooks
-
-git-projects$ ./dehydrated/dehydrated -c -t dns-01 -d jbjonesjr.com -d blog.jbjonesjr.com -k ./dehydrated/hooks/manual/manual_hook.rb
-# INFO: Using main config file /Users/jbjonesjr/lets-encrypt/letsencrypt-jbjonesjr.sh/config.sh
-Processing jbjonesjr.com with alternative names: blog.jbjonesjr.com
- + Signing domains...
- + Generating private key...
- + Generating signing request...
- + Requesting challenge for jbjonesjr.com...
- + Requesting challenge for blog.jbjonesjr.com...
-Create TXT record for the domain: _acme-challenge.jbjonesjr.com. TXT record:
-NT5EcszzzD2imO2IAWh81KqPHcx7nCSR8jHOEwKDjHQ
-Press any key when DNS has been updated...
-
-Found NT5EcszzzD2imO2IAWh81KqPHcx7nCSR8jHOEwKDjHQ. match.
- + Responding to challenge for jbjonesjr.com...
-Challenge complete. Please delete this TXT record(or in bulk later). Press any key when DNS has been updated...
-
- + Challenge is valid!
- Create TXT record for the domain: _acme-challenge.blog.jbjonesjr.com. TXT record:
-EHv_9kV6cfEdAsNBnlttr5ribvCpNqQRf6-R0kJLrh8
-Press any key when DNS has been updated...
-
-Found EHv_9kV6cfEdAsNBnlttr5ribvCpNqQRf6-R0kJLrh8. match.
- + Responding to challenge for blog.jbjonesjr.com...
-Challenge complete. Please delete this TXT record(or in bulk later). Press any key when DNS has been updated...
-
- + Challenge is valid!
- + Requesting certificate...
- + Checking certificate...
- + Done!
- + Creating fullchain.pem...
-deploy_cert
-jbjonesjr.com
-/Users/jbjonesjr/lets-encrypt/letsencrypt-jbjonesjr.sh/certs/jbjonesjr.com/cert.pem
- + Done!
+git-projects$ ./dehydrated/dehydrated -c -t dns-01 -d jbjonesjr.com -k ./dehydrated/hooks/manual/dnsimple_hook.rb
 ```
 
 ### Inspecting resulting certificates
@@ -198,10 +133,3 @@ Certificate:
         46:2a:8b:44:02:b7:5e:94:c0:66:28:3f:f2:f3:7a:a3:e4:ad:
         1f:56:da:b5
 ```
-
-## This is too hard
-Hate the idea of having to update DNS records manually? Want to have a script that takes of this for you without cutting and pasting, and pressing the enter key? Try these other providers and their related hooks:
-* [Route 53](https://gist.github.com/asimihsan/d8d8f0f10bdc85fc6f8a)
-* [Rackspace](https://github.com/major/letsencrypt-rackspace-hook/)
-* [Cloudflare](https://github.com/kappataumu/letsencrypt-cloudflare-hook)
-* [DNS Simple](https://github.com/danp/letsencrypt-dnsimple)
