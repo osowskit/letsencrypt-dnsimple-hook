@@ -1,12 +1,14 @@
-# Manual DNS hook for dehydrated
+# Automated DNS Challenge hook for dehydrated
 
-This repository contains a ruby-based hook for the [`dehyrdated`](dehyrdated: https://github.com/lukas2511/dehydrated) project (a [Let's Encrypt](https://letsencrypt.org/), shell script ACME client) that allows a user to obtain a certificate from the _Let's Encrypt_ API via a DNS challenge. The hook will provide you with the domain and challenge details required for you to add to your DNS records, and poll until this change has propogated before allowing Let's Encrypt to confirm that changes. This is helpful for DNS providers and solutions that do not provide an API. This is an interactive hook to support those DNS providers that require manual interaction.
+This repository contains a ruby-based hook for the [`dehyrdated`](https://github.com/lukas2511/dehydrated) project (a [Let's Encrypt](https://letsencrypt.org/), shell script ACME client) that allows a user to generate a new SSL certificate from the _Let's Encrypt_ API and a [dnsimple](dnsimple.com) account via a [DNS challenge](https://letsencrypt.org/how-it-works/#domain-validation).
 
-Looking for a DNS provider with an API? Try AWS Route 53, Rackspace, or CloudFlare.
+This script is called by Let's Encrypt and will verify you have control over a domain and add a DNS TXT record in [dnsimple](dnsimple.com). The script will wait until the DNS entry has propogated.
+
 
 Relevant Links:
 * dehydrated: https://github.com/lukas2511/dehydrated
 * Let's Encrypt: https://letsencrypt.org/
+* dnsimple: https://dnsimple.com
 
 ## Required
 * git client for tool download
