@@ -4,7 +4,7 @@ require 'resolv'
 require 'public_suffix'
 $stdout.sync = true
 
-debug = true
+debug = false
 DNSIMPLE_API_TOKEN = ENV["DNSIMPLE_API_TOKEN"]
 @dns = Resolv::DNS.new
 
