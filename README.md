@@ -13,7 +13,7 @@ Relevant Links:
 ## Required
 * git client for tool download
 * ruby installed and available on the PATH
-* DNSimple Admin's [User Token](https://support.dnsimple.com/articles/api-access-token/#account-tokens-vs-user-tokens)  
+* DNSimple Admin's user [API Token](https://support.dnsimple.com/articles/api-access-token/#account-tokens-vs-user-tokens)  
 
 ## Installation
 Download the files for installation
@@ -22,10 +22,16 @@ Download the files for installation
   $ git clone https://github.com/lukas2511/dehydrated.git
   $ git clone https://github.com/osowskit/letsencrypt-dnsimple-hook.git dehydrated/hooks/manual
   $ cd dehydrated/hooks/manual/ && bundle install && cd ../../..
-  $ export DNSIMPLE_API_TOKEN=[API-TOKEN]
 ```
 
 ## Usage
+
+## First Use
+### Accept Terms
+```bash
+  $ export DNSIMPLE_API_TOKEN=[API-TOKEN]
+  $ ./dehydrated/dehydrated --register --accept-terms
+```
 ### Certificate for single domain 
 ``` bash
 # **Note:** The `dehyrdrated` client uses the following flags in this example
