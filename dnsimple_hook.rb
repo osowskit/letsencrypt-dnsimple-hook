@@ -44,8 +44,8 @@ def verify_record(challenge_fqdn, challenge)
 end
   
 def setup_dns(account_id, domain, subdomain_name, txt_challenge)
-  acme_domain = "_acme-challenge."+subdomain_name
-
+  acme_domain = if subdomain_name then "_acme-challenge." + subdomain_name else "_acme-challenge" end
+  
   begin
     @client.zones.create_record(account_id, domain, name: acme_domain, type: "TXT", ttl: 60, content: txt_challenge)
     puts "waiting for domain propogation"
