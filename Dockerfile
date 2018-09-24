@@ -6,6 +6,9 @@ ENV LANG C.UTF-8
 COPY dnsimple_hook.rb Gemfile Gemfile.lock entrypoint.sh ./ 
 
 RUN chmod +x /entrypoint.sh && bundle install 
-RUN git clone https://github.com/lukas2511/dehydrated && cd ..
+RUN git clone https://github.com/lukas2511/dehydrated ./checkout/dehydrated
+RUN cp checkout/dehydrated/dehydrated ./ && chmod +x dehydrated
+
+RUN pwd && ls
 
 ENTRYPOINT ["/entrypoint.sh"]
