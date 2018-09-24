@@ -7,7 +7,8 @@ COPY dnsimple_hook.rb Gemfile Gemfile.lock entrypoint.sh ./
 
 RUN chmod +x /entrypoint.sh && bundle install 
 RUN git clone https://github.com/lukas2511/dehydrated ./checkout/dehydrated
+RUN cp checkout/dehydrated/dehydrated ./ && chmod +x dehydrated
 
-RUN pwd && ls
+RUN pwd && ls && ./dehydrated
 
 ENTRYPOINT ["/entrypoint.sh"]
